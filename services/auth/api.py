@@ -1,8 +1,9 @@
 from fastapi import APIRouter, status, Header
 from fastapi.responses import JSONResponse, Response
 from fastapi.requests import Request
-from schema import UserLoginRequest, ServiceUserLoginRequest
-from depends import ServiceDep
+
+from .schema import UserLoginRequest, ServiceUserLoginRequest
+from .depends import ServiceDep
 
 
 main_router = APIRouter(prefix="/api/v1/auth")

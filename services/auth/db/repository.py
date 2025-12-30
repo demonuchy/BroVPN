@@ -1,8 +1,9 @@
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from shared.database.base import BaseRepository, BaseUnitOfWork
 from .models import  User, UserSession
-from  db.context import session_factory
+from .context import session_factory
+
+from shared.database.base import BaseRepository, BaseUnitOfWork
 
 
 class UserRepository(BaseRepository[User]):

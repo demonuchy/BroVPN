@@ -1,12 +1,15 @@
 from typing import Optional, Callable
 from fastapi import HTTPException, status
 from marshmallow_sqlalchemy import SQLAlchemyAutoSchema
-from db.repository import AUoW
-from schema import UserLoginRequest, ServiceUserLoginRequest
+
+from .db.repository import AUoW
+from .schema import UserLoginRequest, ServiceUserLoginRequest
+from .serializer import UserModelSerializer
+from .utils.sms import generate_session_pair
+from .utils.jwt import create_access_token, create_refresh_token
+
 from shared.logger.logger import logger
 from shared.database.base import BaseUnitOfWork
-from serializer import UserModelSerializer
-from utils.jwt import create_access_token, create_refresh_token
 
 class AuthService:
     def __init__(
@@ -18,12 +21,7 @@ class AuthService:
         self._user_serializer = user_serializer() or UserModelSerializer()
     
     async def login(self, data : ServiceUserLoginRequest):
-        logger.debug(f"Попытка входа :{data.phone_number} - {data.password} - {data.ip_addres}")
-        async with self._uow.readonly() as u:
-            user = await u.user_ropository.get_by_field("phone_number", data.phone_number)
-        if user:
-            logger.warn("Пользователь уже существует")
-            raise HTTPException(detail="Пользователь уже существует", status_code=status.HTTP_409_CONFLICT)
+       pass
         
     async def verefy():
         pass

@@ -1,5 +1,6 @@
 networks:
   app-network:
+    driver: bridge 
 
 volumes:
   postgres_data:
@@ -39,13 +40,15 @@ services:
       POSTGRES_DB: ${DB_NAME}
     volumes:
       - postgres_data:/var/lib/postgresql/data 
-      - ./docker-init-db:/docker-entrypoint-initdb.d
+      - ./docker-init-db/:/docker-entrypoint-initdb.d
     healthcheck:                                
       test: ["CMD-SHELL", "pg_isready -U ${DB_USER} -d vpndb"]
       interval: 10s
       timeout: 5s
       retries: 5 
       start_period: 20s
+    ports:
+      - "5432:5432"
     networks:
       - app-network
 
@@ -55,19 +58,36 @@ services:
     ports:
       - "8001:8001"
     environment:
-      - SERVICE_PORT=8001
-      - SERVICE_NAME=auth
-      - VPN_SERVICE_URL=http://vpn-service:8002
+      - PYTHONPATH=/app
     volumes:
-      - ./auth:/app/auth
+      - ./services/auth:/app/auth
       - ./shared:/app/shared
       - ./.env:/app/.env
-    command: ["sh", "-c", "python -m auth.main"]
+    command: ["uvicorn", "auth.main:app", "--host", "0.0.0.0", "--port", "8001"]
     restart: unless-stopped
     depends_on:
       - db
     networks:
       - app-network
+
+  vpn-service:
+    build: .
+    container_name: vpn-service
+    ports:
+      - "8002:8002"
+    environment:
+      - PYTHONPATH=/app
+    volumes:
+      - ./services/vpn:/app/vpn
+      - ./shared:/app/shared
+      - ./.env:/app/.env
+    command: ["uvicorn", "vpn.main:app", "--host", "0.0.0.0", "--port", "8002"]
+    restart: unless-stopped
+    depends_on:
+      - db
+    networks:
+      - app-network
+
 
 
   
