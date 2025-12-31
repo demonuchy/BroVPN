@@ -3,8 +3,8 @@ from fastapi import FastAPI, status
 from fastapi.responses import JSONResponse
 from contextlib import asynccontextmanager
 
-from .api import main_router
-from .db.context import db_health_check
+from api import main_router
+from db.context import db_health_check
 
 from shared.logger.logger import logger
 

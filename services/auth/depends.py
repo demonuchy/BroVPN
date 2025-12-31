@@ -1,9 +1,9 @@
 from typing import Annotated
 from fastapi import Depends
 
-from .buisnes import AuthService
-from .db.repository import AUoW
-from .serializer import UserModelSerializer
+from buisnes import AuthService
+from db.repository import AUoW
+from serializer import UserModelSerializer
 
 
 async def _get_service():

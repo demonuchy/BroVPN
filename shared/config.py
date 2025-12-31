@@ -27,6 +27,10 @@ class Settings(BaseSettings):
     JWT_ALGORITM : str
     JWT_KID : str
 
+    TOKEN_BOT : str
+    WEBHOOK_TUNNEL_URL : str
+    WEBHOOK_SECRET_KEY : str
+
     @property
     def AsyncDataBaseUrl(self):
         """Url для подключения к базе данных"""
