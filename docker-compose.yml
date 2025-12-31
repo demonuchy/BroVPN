@@ -34,13 +34,12 @@ services:
     env_file:
       - .env
     environment:
-      # User
       POSTGRES_USER: ${DB_USER}
       POSTGRES_PASSWORD: ${DB_PASS}
       POSTGRES_DB: ${DB_NAME}
     volumes:
       - postgres_data:/var/lib/postgresql/data 
-      - ./docker-init-db/:/docker-entrypoint-initdb.d
+      - ./docker-init-db:/docker-entrypoint-initdb.d
     healthcheck:                                
       test: ["CMD-SHELL", "pg_isready -U ${DB_USER} -d vpndb"]
       interval: 10s
@@ -63,7 +62,14 @@ services:
       - ./services/auth:/app/auth
       - ./shared:/app/shared
       - ./.env:/app/.env
-    command: ["uvicorn", "auth.main:app", "--host", "0.0.0.0", "--port", "8001"]
+    command:       
+      sh -c 
+      "
+      cd ./auth &&
+      sleep 5 &&
+      alembic upgrade head &&
+      uvicorn auth.main:app --host 0.0.0.0 --port 8001
+      "
     restart: unless-stopped
     depends_on:
       - db

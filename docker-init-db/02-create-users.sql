@@ -1,3 +1,11 @@
-CREATE USER postgres WITH PASSWORD 'root';
-GRANT ALL PRIVILEGES ON DATABASE beregdonadb TO dima;
-ALTER USER dima CREATEDB
+DO $$
+BEGIN
+    IF NOT EXISTS (SELECT FROM pg_roles WHERE rolname = 'dima') THEN
+        CREATE USER dima WITH PASSWORD 'root';
+        RAISE NOTICE 'User dima created';
+    ELSE
+        RAISE NOTICE 'User dima already exists';
+    END IF;
+END $$;
+
+GRANT ALL PRIVILEGES ON DATABASE vpndb TO dima;

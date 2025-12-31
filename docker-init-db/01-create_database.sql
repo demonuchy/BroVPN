@@ -1,2 +1,0 @@
-SELECT 'CREATE DATABASE vpndb'
-WHERE NOT EXISTS (SELECT FROM pg_database WHERE datname = 'vpndb')\gexec

@@ -8,13 +8,17 @@ from sqlalchemy import pool
 
 from alembic import context
 
-# Добавляем путь к корню проекта
+from shared.config import config as cfg
 from db.base import AuthBase
 from shared.logger.logger import logger
 
 logger.debug(f"Auth сервис таблиц : {len(AuthBase.metadata.tables)}")
 
 config = context.config
+
+#logger.debug(f"Auth установка url {cfg.AsyncDataBaseUrl}")
+#config.set_main_option("sqlalchemy.url", cfg.AsyncDataBaseUrl)
+
 
 if config.config_file_name is not None:
     fileConfig(config.config_file_name)

@@ -1,7 +1,7 @@
 from pydantic_settings import BaseSettings, SettingsConfigDict
 from pydantic import  ConfigDict
 from pathlib import Path
-import os
+from shared.logger.logger import logger
 
 BASE_DIR = Path(__file__).parent.parent  # shared/ -> backend/
 ENV_PATH = BASE_DIR/".env"
@@ -16,6 +16,7 @@ class Settings(BaseSettings):
     DB_HOST : str 
     DB_NAME : str
     DB_PORT : int 
+    DB_CONTAINER_NAME : str
 
     REDIS_HOST : str
     REDIS_PORT : str
@@ -29,7 +30,12 @@ class Settings(BaseSettings):
     @property
     def AsyncDataBaseUrl(self):
         """Url для подключения к базе данных"""
-        uri = f"postgresql+asyncpg://{self.DB_USER}:{self.DB_PASS}@{self.DB_HOST}:{self.DB_PORT}/{self.DB_NAME}"
+        uri = None
+        if self.DB_CONTAINER_NAME:
+            uri = f"postgresql+asyncpg://{self.DB_USER}:{self.DB_PASS}@{self.DB_CONTAINER_NAME}:{self.DB_PORT}/{self.DB_NAME}"
+        else:
+            uri = f"postgresql+asyncpg://{self.DB_USER}:{self.DB_PASS}@{self.DB_HOST}:{self.DB_PORT}/{self.DB_NAME}"
+        logger.debug(f"Uri подключения к дб {uri}")
         return uri
 
     model_config = SettingsConfigDict(

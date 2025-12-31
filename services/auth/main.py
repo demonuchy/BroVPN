@@ -4,6 +4,7 @@ from fastapi.responses import JSONResponse
 from contextlib import asynccontextmanager
 
 from .api import main_router
+from .db.context import db_health_check
 
 from shared.logger.logger import logger
 
@@ -22,6 +23,28 @@ async def health():
         content={"detail" : "Auth service start succses"}, 
         status_code=status.HTTP_200_OK
         )
+
+@app.get("/db/health")
+async def db_health():
+    try:
+        result = await db_health_check()
+        if result == 1:
+            return  JSONResponse(
+            content={"detail" : "Auth service the connection to the database is established"}, 
+            status_code=status.HTTP_200_OK
+            )
+        logger.warn(f"Ошибка подключения к бд : {result}")
+        return JSONResponse(
+            content={"detail" : "Auth service the connection to the database is failed !"}, 
+            status_code=status.HTTP_503_SERVICE_UNAVAILABLE
+            )
+    except Exception as e:
+        logger.warn(f"Ошибка подключения к бд {str(e)}")
+        return JSONResponse(
+            content={"detail" : "Auth service the connection to the database ian unforeseen event!"}, 
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR
+            )
+
 
 app.include_router(main_router)
 
