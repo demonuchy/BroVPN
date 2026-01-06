@@ -44,7 +44,7 @@ def _create_token(
         algorithm=config.JWT_ALGORITM,  
         headers=headers
     )
-    return token
+    return jti,  token
 
 
 
@@ -62,14 +62,14 @@ def create_access_token(
         token : токен
     """
 
-    token = _create_token(
+    jti, token = _create_token(
         kid=config.JWT_KID,
         user_id=user_id, 
         type="access", 
         expire_minutes=config.JWT_ACCESS_EXPIRE_MINETS, 
         **kwargs
         )
-    return token
+    return jti, token
     
 
 
@@ -87,14 +87,14 @@ def create_refresh_token(
         token : токен
     """
 
-    token = _create_token(
+    jti, token = _create_token(
         kid=config.JWT_KID,
         user_id=user_id, 
         type="refresh", 
         expire_minutes=config.JWT_REFRESH_EXPIRE_MINETS, 
         **kwargs
         )
-    return token
+    return jti, token
 
 
 def verefy_token(

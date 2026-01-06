@@ -9,16 +9,14 @@ from sqlalchemy.exc import IntegrityError
 from fastapi import HTTPException
 
 
+from logger.logger import logger
+
+
 class Base(AsyncAttrs, DeclarativeBase):
     """Базовый класс модели"""
     __abstract__ = True
     __table_args__ = {'extend_existing': True}
-    id : Mapped[int] = mapped_column(BigInteger, primary_key=True, index=True)
-    created_at: Mapped[datetime] = mapped_column(default=func.now())
-
-    def to_dict(self):
-        return {c.name: getattr(self, c.name) for c in self.__table__.columns}
-    
+       
     def __repr__(self):
         return f"<{self.__class__.__name__}(id={self.id})>"
 
@@ -213,7 +211,30 @@ class BaseRepository(Generic[T]):
         return result.scalar_one_or_none() is not None
     
 
-class BaseUnitOfWork:
+class AnnotationTypeUow(type):
+
+    def __new__(mcs, name, bases, nameplace):
+        print(f"Вызов __new__ meta")
+        cls = super().__new__(mcs, name, bases, nameplace)
+        if not hasattr(cls, '__annotations__'):
+            cls.__annotations__ = {}
+        return cls
+    
+    def __init__(cls, name, bases, nameplace):
+        print(f"Вызов __init__ meta")
+        super().__init__(name, bases, nameplace)
+        if "add_repository" in nameplace:
+            original_add_repository = cls.add_repository
+            def patch_add_repository(self, name: str, repository_cls: Type[BaseRepository]) -> None:
+                result = original_add_repository(self, name, repository_cls)
+                attr_name = f"{name}_repository"
+                cls.__annotations__[attr_name] = repository_cls
+                return result
+
+            cls.add_repo = patch_add_repository
+    
+
+class BaseUnitOfWork(metaclass=AnnotationTypeUow):
     """
     BaseUnitOfWork read/write.
     
@@ -243,6 +264,7 @@ class BaseUnitOfWork:
         user = await repo.get_by_id(...)
         # Автоматическое закрытие сессии при выходе из скоупа
     """
+    
 
     def __init__(self, session_factory: AsyncGenerator, schema: str = "public"):
         self.schema = schema
@@ -262,6 +284,9 @@ class BaseUnitOfWork:
         """
         repo_name = f"{name}_repository"
         self._repos[repo_name] = repository_cls
+
+    def add_repository(self, name: str, repository_cls: Type[BaseRepository]) -> None:
+        self.add_repo(name, repository_cls)
 
     def get_repository(self, name: str) -> BaseRepository:
         """
@@ -343,6 +368,7 @@ class BaseUnitOfWork:
             async with uow.transaction() as u:
                 await u.user_repository.create(...)
         """
+        logger.debug("Открвываем транзакцию")
         if self._session is not None:
             raise RuntimeError("Сессия уже используется")
         self._session = self._session_factory()
@@ -353,11 +379,14 @@ class BaseUnitOfWork:
             await self._session.begin()
             yield self
             await self._session.commit()
+            logger.debug("Успешный коммит")
         except Exception:
             if self._session.in_transaction():
                 await self._session.rollback()
+            logger.warn("Ошибка откат транзакции")
             raise
         finally:
+            logger.debug("Закрываем транзакцию")
             self._cleanup_repositories()
             self._in_transaction = False
             await self._session.aclose()

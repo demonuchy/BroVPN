@@ -17,7 +17,14 @@ class UserSessionRepository(BaseRepository[UserSession]):
 
 
 class AUoW(BaseUnitOfWork):
+    
+    # Добавляем анннотации просто для удобства разработки 
+    # IDE будет подсказывать
+    user_repository : 'UserRepository'
+    session_repository : 'UserSessionRepository'
+
     def __init__(self):
         super().__init__(session_factory=session_factory, schema="auth")
         self.add_repo("user", UserRepository)
         self.add_repo("session", UserSessionRepository)
+
