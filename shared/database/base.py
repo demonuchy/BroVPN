@@ -9,7 +9,7 @@ from sqlalchemy.exc import IntegrityError
 from fastapi import HTTPException
 
 
-from logger.logger import logger
+from ..logger.logger import logger
 
 
 class Base(AsyncAttrs, DeclarativeBase):
@@ -234,7 +234,7 @@ class AnnotationTypeUow(type):
             cls.add_repo = patch_add_repository
     
 
-class BaseUnitOfWork(metaclass=AnnotationTypeUow):
+class BaseUnitOfWork():
     """
     BaseUnitOfWork read/write.
     

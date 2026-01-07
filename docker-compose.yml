@@ -65,7 +65,7 @@ services:
       - ./services/auth:/app/auth
       - ./shared:/app/shared
       - ./.env:/app/.env
-    command:       
+    command: 
       sh -c 
       "
       sleep 5 &&

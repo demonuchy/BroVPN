@@ -2,7 +2,7 @@ from functools import wraps
 from fastapi import HTTPException, status
 from fastapi.responses import JSONResponse
 
-from logger.logger import logger
+from .logger.logger import logger
 
 
 def errors():

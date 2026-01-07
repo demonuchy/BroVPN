@@ -8,6 +8,7 @@ from shared.depends import errors
 
 main_router = APIRouter(prefix="/api/v1/auth")
 
+
 @errors()
 @main_router.post("/register")
 async def login(
@@ -22,14 +23,10 @@ async def login(
         ip_addres=request.client.host, 
         **data.model_dump()
         )
-    access_token, refresh_token = await service.register(data)
+    await service.register(data)
     return JSONResponse(
         content={
-            "detail" : "Пользователь успешно создан", 
-            "data" : {
-                "access_token" : access_token,
-                "refresh_token" : refresh_token
-                }
+            "detail" : "Пользователь успешно создан"
             }, 
             status_code=status.HTTP_201_CREATED,
             )

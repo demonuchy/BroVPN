@@ -1,7 +1,8 @@
 import abc 
 from functools import wraps
 from typing import Optional, Callable, TypeVar, Generic
-from database.base import BaseUnitOfWork
+
+from ..database.base import BaseUnitOfWork
 
 
 U = TypeVar('U', bound='BaseUnitOfWork')  # UnitOfWork type

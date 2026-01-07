@@ -13,13 +13,7 @@ from .base import AuthBase
 
 class User(AuthBase):
     __tablename__ = "users"
-    __table_args__ = AuthBase.__table_args__ + (
-        CheckConstraint(
-            text('phone_number IS NOT NULL OR telegram_id IS NOT NULL'),
-            name='check_auth_method'
-            ),
-        )
-
+   
     id : Mapped[int]
 
     phone_number : Mapped[str] = mapped_column(String(11), unique=True, nullable=True)
