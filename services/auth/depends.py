@@ -13,3 +13,5 @@ async def _get_service():
         )
 
 ServiceDep = Annotated[AuthService, Depends(_get_service)]
+
+

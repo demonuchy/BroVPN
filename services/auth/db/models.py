@@ -28,8 +28,8 @@ class User(AuthBase):
 
     is_active : Mapped[bool] = mapped_column(Boolean, nullable=False, default=False)
 
-    last_login : Mapped[datetime] = ... 
-    created_at : Mapped[datetime] = ...
+    last_login : Mapped[datetime] = mapped_column(DateTime, nullable=False, default=func.now())
+    created_at : Mapped[datetime] = mapped_column(DateTime, nullable=False, default=func.now())
 
     sessions : Mapped[List["UserSession"]] = relationship(
         "UserSession", 
@@ -41,14 +41,19 @@ class User(AuthBase):
 
 class UserSession(AuthBase):
     __tablename__ = "user_sessions"
+
     id : Mapped[int]
 
     device_id : Mapped[str] = mapped_column(String(50), unique=False, nullable=True)
     ip_addres : Mapped[str] = mapped_column(String(15), unique=False, nullable=False)
-    refresh_jti : Mapped[uuid.UUID] = ...
-    last_activity : Mapped[datetime] = ...
+    refresh_jti : Mapped[uuid.UUID] = mapped_column(UUID, nullable=False, index=True)
+    last_activity : Mapped[datetime] = mapped_column(DateTime, nullable=False, default=func.now(), onupdate=func.now())
     
-    user_id : Mapped[int] = mapped_column(ForeignKey("auth.users.id", ondelete="CASCADE"), nullable=False, index=True)
+    user_id : Mapped[int] = mapped_column(
+        ForeignKey("auth.users.id", ondelete="CASCADE"), 
+        nullable=False, 
+        index=True
+        )
     user : Mapped["User"] = relationship(
         "User", 
         back_populates="sessions"

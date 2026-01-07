@@ -10,7 +10,7 @@ class UserRegisterWithTelegramRequest(BaseModel):
     telegram_id : str = Field(...)
 
 
-class ServiceUserLoginWithTelegramRequest(UserRegisterWithTelegramRequest, ServiceRegisterMixin):
+class ServiceUserRegisterWithTelegramRequest(UserRegisterWithTelegramRequest, ServiceRegisterMixin):
     pass
 
 

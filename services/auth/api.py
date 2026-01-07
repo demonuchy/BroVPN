@@ -2,27 +2,27 @@ from fastapi import APIRouter, status, Header
 from fastapi.responses import JSONResponse, Response
 from fastapi.requests import Request
 
-from schema import UserLoginRequest, ServiceUserLoginRequest
+from schema import UserRegisterRequest, ServiceUserRegisterRequest
 from depends import ServiceDep
-
+from shared.depends import errors
 
 main_router = APIRouter(prefix="/api/v1/auth")
 
-
-@main_router.post("/login")
+@errors()
+@main_router.post("/register")
 async def login(
     request : Request,  
-    data : UserLoginRequest, 
+    data : UserRegisterRequest, 
     service : ServiceDep, 
     device_id : str | None = Header(None, alias="X-Device-ID")
     ) -> Response:
     """Регистрация в сиситеме"""
-    data = ServiceUserLoginRequest(
+    data = ServiceUserRegisterRequest(
         device_id=device_id, 
         ip_addres=request.client.host, 
         **data.model_dump()
         )
-    access_token, refresh_token = await service.login(data)
+    access_token, refresh_token = await service.register(data)
     return JSONResponse(
         content={
             "detail" : "Пользователь успешно создан", 
@@ -35,8 +35,8 @@ async def login(
             )
 
 
-@main_router.post("/singin")
-async def signin(): 
+@main_router.post("/login")
+async def login(): 
     """Вход в систему"""
 
 
